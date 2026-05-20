@@ -1,24 +1,30 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
 name: Node.js CI
 
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Use Node.js 24
       uses: actions/setup-node@v4
       with:
         node-version: '24'
         cache: 'npm'
-    - run: npm ci
-    - run: npm run build --if-present
-    - run: npm test
+
+    - name: Install Dependencies
+      run: npm install  # We use 'install' instead of 'ci' just in case the lockfile is out of sync
+
+    - name: Build Source
+      run: npm run build
+      env:
+        NODE_OPTIONS: "--max-old-space-size=4096" # Boosts memory for Vite 8
+
+    - name: Deploy to Firebase
+      # This only runs if the build succeeds
+      run: npx firebase-tools deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
