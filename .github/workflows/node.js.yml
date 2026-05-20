@@ -17,15 +17,13 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        # Using install instead of ci to fix any lockfile drift
         run: npm install 
 
       - name: Build Project
-        # CI=false prevents "Warnings" from being treated as "Errors"
         run: CI=false npm run build 
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
 
       - name: Deploy to Firebase
-        # We use npx to ensure we use the latest firebase-tools without a global install
-        run: npx firebase-tools deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
+        # Updated with your specific project ID
+        run: npx firebase-tools deploy --only hosting --project travella-f5876 --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
