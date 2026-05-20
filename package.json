@@ -1,7 +1,7 @@
 {
   "name": "travella",
   "private": true,
-  "homepage": "https://travella.github.io/",
+  "homepage": "https://travella.github.io/travella",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
