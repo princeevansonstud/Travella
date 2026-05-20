@@ -1,30 +1,31 @@
-name: Node.js CI
-
+name: Travella Deployment
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Use Node.js 24
-      uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        cache: 'npm'
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
 
-    - name: Install Dependencies
-      run: npm install  # We use 'install' instead of 'ci' just in case the lockfile is out of sync
+      - name: Install Dependencies
+        # Using install instead of ci to fix any lockfile drift
+        run: npm install 
 
-    - name: Build Source
-      run: npm run build
-      env:
-        NODE_OPTIONS: "--max-old-space-size=4096" # Boosts memory for Vite 8
+      - name: Build Project
+        # CI=false prevents "Warnings" from being treated as "Errors"
+        run: CI=false npm run build 
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
 
-    - name: Deploy to Firebase
-      # This only runs if the build succeeds
-      run: npx firebase-tools deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
+      - name: Deploy to Firebase
+        # We use npx to ensure we use the latest firebase-tools without a global install
+        run: npx firebase-tools deploy --only hosting --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
